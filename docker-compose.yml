@@ -1,0 +1,89 @@
+version: '3.4'
+
+services:
+  tweet.core:
+    container_name: tweetcoreapi
+    hostname: tweetcoreapi
+    image: ${DOCKER_REGISTRY-}tweetcore
+    build:
+      context: .
+      dockerfile: Tweet.Core/Dockerfile
+    environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+        - ASPNETCORE_URLS=https://51000:443
+    ports:
+        - 8082:80
+        - 8084:443
+    depends_on:
+        prometheus:
+            condition: service_healthy
+        grafana:
+            condition: service_healthy
+    
+  grafana:
+    container_name: grafana_tweetcore
+    image: grafana/grafana:master
+    ports:
+      - "3001:3000"
+    volumes:
+        - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+        - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    depends_on:
+        prometheus:
+            condition: service_healthy
+    healthcheck:
+        test: wget -q --tries=1 -O- http://localhost:3000/
+        interval: 3s
+        timeout: 3s
+        retries: 10
+        start_period: 10s
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus_tweetcore
+    restart: always
+    ports:
+      - 9000:9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    healthcheck:
+        test: wget -q --tries=1 -O- http://localhost:9090/
+        interval: 3s
+        timeout: 3s
+        retries: 10
+        start_period: 10s
+
+  elasticsearch:
+     container_name: elasticsearch
+     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+     ports:
+        - 9200:9200
+     volumes:
+        - elasticsearch-data:/usr/share/elasticsearch/data
+     environment:
+        - xpack.monitoring.enabled=true
+        - xpack.watcher.enabled=false
+        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        - discovery.type=single-node
+     networks:
+        - elastic
+
+  kibana:
+   container_name: kibana
+   image: docker.elastic.co/kibana/kibana:7.9.2
+   ports:
+    - 5601:5601
+   depends_on:
+    - elasticsearch
+   environment:
+    - ELASTICSEARCH_URL=http://localhost:9200
+   networks:
+    - elastic
+  
+networks:
+  elastic:
+    driver: bridge
+
+volumes:
+  elasticsearch-data:
+    driver: local
