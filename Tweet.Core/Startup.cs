@@ -43,9 +43,9 @@ namespace Tweet.Core
             {
                 options.SwaggerDoc("v2", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "Authentication Sevice",
+                    Title = "Tweet Sevice",
                     Version = "v2",
-                    Description = "Endpoint for User Management",
+                    Description = "Endpoint for Tweets Management",
                 });
             });
 
