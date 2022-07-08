@@ -10,7 +10,7 @@ services:
       dockerfile: Tweet.Core/Dockerfile
     environment:
         - ASPNETCORE_ENVIRONMENT=Development
-        - ASPNETCORE_URLS=https://51000:443
+        - ASPNETCORE_URLS=https://+:443;http://+:80
     ports:
         - 8082:80
         - 8084:443
@@ -52,38 +52,3 @@ services:
         timeout: 3s
         retries: 10
         start_period: 10s
-
-  elasticsearch:
-     container_name: elasticsearch
-     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
-     ports:
-        - 9200:9200
-     volumes:
-        - elasticsearch-data:/usr/share/elasticsearch/data
-     environment:
-        - xpack.monitoring.enabled=true
-        - xpack.watcher.enabled=false
-        - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-        - discovery.type=single-node
-     networks:
-        - elastic
-
-  kibana:
-   container_name: kibana
-   image: docker.elastic.co/kibana/kibana:7.9.2
-   ports:
-    - 5601:5601
-   depends_on:
-    - elasticsearch
-   environment:
-    - ELASTICSEARCH_URL=http://localhost:9200
-   networks:
-    - elastic
-  
-networks:
-  elastic:
-    driver: bridge
-
-volumes:
-  elasticsearch-data:
-    driver: local

@@ -1,3 +1,4 @@
+using Confluent.Kafka;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tweet.Core.Kafka;
 using Tweet.Core.Models;
 using Tweet.Core.Services;
 using Tweet.Core.Services.Abstractions;
@@ -34,9 +36,16 @@ namespace Tweet.Core
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDatabase"));
+            services.AddSingleton<KafkaProducer>();
             services.AddSingleton(Configuration);
             services.AddSingleton<ITweetService, TweetService>();
             services.AddControllers();
+            services.AddHostedService<KafkaConsumer>();
+
+            //Kafka Producer
+            var producerConfig = new ProducerConfig();
+            Configuration.Bind("producer", producerConfig);
+            services.AddSingleton(producerConfig);
 
             // Swagger settings.
             services.AddSwaggerGen(options =>

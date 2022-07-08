@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweet.Core", "Tweet.Core\Tw
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{197C73BD-206F-462A-8B50-2DC9A25E3BB5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Module.Tests", "Module.Tests\Module.Tests.csproj", "{5C886E8B-5003-49C7-942E-8A11A2922FE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{197C73BD-206F-462A-8B50-2DC9A25E3BB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{197C73BD-206F-462A-8B50-2DC9A25E3BB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{197C73BD-206F-462A-8B50-2DC9A25E3BB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C886E8B-5003-49C7-942E-8A11A2922FE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C886E8B-5003-49C7-942E-8A11A2922FE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C886E8B-5003-49C7-942E-8A11A2922FE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C886E8B-5003-49C7-942E-8A11A2922FE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

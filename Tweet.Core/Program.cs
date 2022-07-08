@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
+using Serilog.Formatting.Elasticsearch;
 using Serilog.Sinks.Elasticsearch;
 using System;
 using System.Reflection;
@@ -29,9 +30,11 @@ namespace Tweet.Core
                             outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
                             rollingInterval: RollingInterval.Day)
                           .WriteTo.File(new RenderedCompactJsonFormatter(), "logs/tweet-ms-logs-.json", rollingInterval: RollingInterval.Day)
+                          .WriteTo.Console(new ElasticsearchJsonFormatter())
                           .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]))
                           {
                               AutoRegisterTemplate = true,
+                              AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
                               IndexFormat = $"{Assembly.GetExecutingAssembly().GetName().Name.ToLower()}-{DateTime.UtcNow:yyyy-MM}"
                           })
                           .CreateLogger();

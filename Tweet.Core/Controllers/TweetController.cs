@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Tweet.Core.Attributes;
+using Tweet.Core.Kafka;
 using Tweet.Core.Models;
 using Tweet.Core.Services.Abstractions;
 
@@ -20,18 +21,22 @@ namespace Tweet.Core.Controllers
     {
         private readonly ITweetService _tweetService;
         private readonly ILogger<TweetController> _logger;
-        public TweetController(ITweetService tweetService, ILogger<TweetController> logger)
+        private readonly KafkaProducer _kafkaProducer;
+        public TweetController(ITweetService tweetService, ILogger<TweetController> logger, KafkaProducer kafkaProducer)
         {
             _tweetService = tweetService;
             _logger = logger;
+            _kafkaProducer = kafkaProducer;
         }
 
         [HttpPost("add")]
-        public async Task AddTweet(TweetModel tweetModel)
+        public async Task<IActionResult> AddTweet(TweetModel tweetModel)
         {
             _logger.LogInformation("Started: Add New Tweet "+ tweetModel.ToString());
             await _tweetService.AddTweet(tweetModel);
+            await _kafkaProducer.TweetAdded(tweetModel);
             _logger.LogInformation("Ended: Add New Tweet");
+            return Created("Tweet Added", "");
         }
 
         [HttpGet("all")]
@@ -54,7 +59,7 @@ namespace Tweet.Core.Controllers
         }
 
         [HttpPatch("{userId}/like")]
-        public async Task<ActionResult> LikeTweet([FromBody]string tweetId,[FromRoute] string userId)
+        public async Task<IActionResult> LikeTweet([FromBody]string tweetId,[FromRoute] string userId)
         {
             _logger.LogInformation("Started: Like/Unlike Tweet. Id: " + tweetId);
             await _tweetService.LikeTweet(tweetId, userId);
@@ -63,7 +68,7 @@ namespace Tweet.Core.Controllers
         }
 
         [HttpDelete("{userId}/delete/{tweetId}")]
-        public async Task<ActionResult> DeleteTweet([FromRoute] string tweetId, [FromRoute] string userId)
+        public async Task<IActionResult> DeleteTweet([FromRoute] string tweetId, [FromRoute] string userId)
         {
             _logger.LogInformation($"Started: Delete Tweet. Id: {tweetId}");
             var result = await _tweetService.DeleteTweet(tweetId, userId);
@@ -72,11 +77,12 @@ namespace Tweet.Core.Controllers
         }
 
         [HttpPatch("{tweetId}/reply")]
-        public async Task ReplyTweet([FromRoute] string tweetId, [FromBody] TweetReply reply)
+        public async Task<IActionResult> ReplyTweet([FromRoute] string tweetId, [FromBody] TweetReply reply)
         {
             _logger.LogInformation($"Started: Reply to Tweet {tweetId}" );
             await _tweetService.ReplyTweet(tweetId, reply);
             _logger.LogInformation($"Ended: Reply to Tweet {tweetId}");
+            return Ok("Replied to tweet done");
         }
     }
 }
